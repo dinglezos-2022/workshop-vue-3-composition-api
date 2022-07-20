@@ -1,3 +1,34 @@
+<script setup>
+import { ref, computed } from "vue";
+import orderBy from "lodash/orderby";
+import { useFetchResource } from "@/components/composables/useFetchResource";
+
+// fetching characters
+const {
+  data: characters,
+  loadingState,
+  fetchResource: fetchAllCharacters,
+} = useFetchResource("https://rickandmortyapi.com/api/character");
+fetchAllCharacters();
+
+// fetching locations
+const {
+  data: locations,
+  loadingState: loadingLocations,
+  fetchResource: fetchLocations,
+} = useFetchResource("https://rickandmortyapi.com/api/location");
+fetchLocations();
+
+// sorting/ordering characters
+const orderKey = ref("id");
+const charactersOrdered = computed(() =>
+  orderBy(characters.value, orderKey.value)
+);
+function setOrderKey(key) {
+  orderKey.value = key;
+}
+</script>
+
 <template>
   <div>
     <div class="border-b-2 pb-4 border-gray-300 text-center">
@@ -31,52 +62,36 @@
           </div>
         </div>
       </div>
+      <div>
+        <h1 class="text-2xl">Locations</h1>
+        <table class="table-fixed w-full text-left">
+          <thead class="bg-gray-500">
+            <tr>
+              <th class="font-bold p-2">Name</th>
+              <th class="font-bold">Type</th>
+              <th class="font-bold">Dimension</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="location in locations" :key="location.id">
+              <td>{{ location.name }}</td>
+              <td>{{ location.type }}</td>
+              <td>{{ location.dimension }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
-    <div v-if="loadingState === 'loading'" class="loading">
+    <div
+      v-if="loadingState === 'loading' || loadingLocations === 'loading'"
+      class="loading"
+    >
       <span class="text-gray-500">Loading characters...</span>
       <img src="/spinner.svg" alt="loading" />
     </div>
   </div>
 </template>
-
-<script>
-import axios from "axios";
-import orderBy from "lodash/orderby";
-export default {
-  data() {
-    return {
-      characters: [],
-      loadingState: null,
-      orderKey: "id",
-    };
-  },
-  computed: {
-    charactersOrdered() {
-      return orderBy(this.characters, this.orderKey);
-    },
-  },
-  methods: {
-    setOrderKey(key) {
-      this.orderKey = key;
-    },
-    fetchAllCharacters() {
-      this.loadingState = "loading";
-      axios
-        .get("https://rickandmortyapi.com/api/character")
-        .then((response) => {
-          setTimeout(() => {
-            this.loadingState = "success";
-            this.characters = response.data.results;
-          }, 1000);
-        });
-    },
-  },
-  created() {
-    this.fetchAllCharacters();
-  },
-};
-</script>
 
 <style scoped>
 .btn {
