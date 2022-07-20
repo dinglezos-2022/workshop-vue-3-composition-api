@@ -1,7 +1,15 @@
 <script setup>
 import { ref } from "vue";
+import { useGlobalEvent } from "@/components/composables/useGlobalEvent.js";
 defineProps({
   src: String,
+});
+
+useGlobalEvent("keypress", (e) => {
+  console.log(e);
+  if (e.charCode !== 32) return;
+  e.preventDefault();
+  video.value.paused ? video.value.play() : video.value.pause();
 });
 
 const video = ref(null);
