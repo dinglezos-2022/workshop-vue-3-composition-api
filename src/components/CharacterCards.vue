@@ -1,7 +1,14 @@
 <script setup>
 import { ref, computed } from "vue";
 import orderBy from "lodash/orderby";
-import { useFetchResource } from "@/components/composables/useFetchResource";
+import { useFetchResource } from "@/components/composables/useFetchResource.js";
+import { useGlobalEvent } from "@/components/composables/useGlobalEvent.js";
+
+
+useGlobalEvent("keypress", () => {
+  characters.value.shift();
+});
+
 
 // fetching characters
 const {
